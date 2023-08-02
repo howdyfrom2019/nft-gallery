@@ -1,4 +1,16 @@
+import useFirestore from "@/hooks/useFirestore";
+import { useEffect, useState } from "react";
+
 const ListBoard = () => {
+  const { fetchNFTList } = useFirestore();
+  const [nftList, setNftList] = useState<NFT.List>([]);
+
+  useEffect(() => {
+    fetchNFTList().then((res) => setNftList(res));
+  }, []);
+
+  console.log(nftList);
+
   return (
     <div
       className={

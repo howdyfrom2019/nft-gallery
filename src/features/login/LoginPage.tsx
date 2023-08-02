@@ -11,6 +11,7 @@ const LoginPage = () => {
   const handleLogin = async () => {
     try {
       if (!auth) return;
+      console.log(auth);
       const result = await signInWithPopup(auth, provider);
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential?.accessToken;

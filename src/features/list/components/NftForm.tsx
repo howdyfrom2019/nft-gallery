@@ -1,19 +1,23 @@
 import { storage } from "@/firebase/firebaseClient";
+import useFirestore from "@/hooks/useFirestore";
 import { useInput } from "@/hooks/useInput";
 import { ref, uploadBytes } from "firebase/storage";
 import { useRef } from "react";
+import { v4 as uuidv4 } from "uuid";
 
 const NFTForm = () => {
   const [title, onChangeTitle] = useInput("");
   const [desc, onChangeDesc] = useInput("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const { createNFTItem } = useFirestore();
 
   const uplaodImageToFireStore = async () => {
     if (!fileRef.current) return;
     const file = fileRef.current.files?.[0];
 
     if (!file) return;
-    const nftRef = ref(storage, `nft/${file.name}`);
+    const extension = file.name.split(".").pop();
+    const nftRef = ref(storage, `nft/${uuidv4()}.${extension}`);
     const snapshot = await uploadBytes(nftRef, file);
 
     return {
@@ -28,6 +32,13 @@ const NFTForm = () => {
     if (!uploadedResult) return;
 
     const { isSuccess, bucket, path } = uploadedResult;
+    if (isSuccess) {
+      createNFTItem({
+        title,
+        desc,
+        url: `${bucket}/${path}`,
+      });
+    }
   };
 
   return (
