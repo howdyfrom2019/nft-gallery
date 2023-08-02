@@ -1,17 +1,40 @@
-import { getStorage, ref, uploadBytes } from "firebase/storage";
+import { storage } from "@/firebase/firebaseClient";
+import { useInput } from "@/hooks/useInput";
+import { ref, uploadBytes } from "firebase/storage";
+import { useRef } from "react";
 
 const NFTForm = () => {
-  const storage = getStorage();
+  const [title, onChangeTitle] = useInput("");
+  const [desc, onChangeDesc] = useInput("");
+  const fileRef = useRef<HTMLInputElement>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    console.log(e);
+  const uplaodImageToFireStore = async () => {
+    if (!fileRef.current) return;
+    const file = fileRef.current.files?.[0];
+
+    if (!file) return;
+    const nftRef = ref(storage, `nft/${file.name}`);
+    const snapshot = await uploadBytes(nftRef, file);
+
+    return {
+      isSuccess: Boolean(snapshot),
+      bucket: snapshot.ref.bucket,
+      path: snapshot.ref.fullPath,
+    };
   };
+
+  const handleClickSubmit = async () => {
+    const uploadedResult = await uplaodImageToFireStore();
+    if (!uploadedResult) return;
+
+    const { isSuccess, bucket, path } = uploadedResult;
+  };
+
   return (
-    <form
+    <div
       className={
         "flex flex-col gap-4 w-full max-w-[1024px] mx-auto py-4 rounded-sm bg-slate-100"
       }
-      onSubmit={handleSubmit}
     >
       <label className={"text-gray-800 font-serif"}>
         Mint Your Unique NFT!
@@ -19,13 +42,20 @@ const NFTForm = () => {
       <input
         className={"bg-slate-100 px-2 py-1 border"}
         placeholder={"title"}
+        onChange={onChangeTitle}
+        value={title}
       />
-      <input className={"bg-slate-100 px-2 py-1 border"} placeholder={"desc"} />
-      <input type={"file"} />
-      <button className={"p-2 border font-serif"} type={"submit"}>
+      <input
+        className={"bg-slate-100 px-2 py-1 border"}
+        placeholder={"desc"}
+        onChange={onChangeDesc}
+        value={desc}
+      />
+      <input type={"file"} accept={"image/*"} multiple={false} ref={fileRef} />
+      <button className={"p-2 border font-serif"} onClick={handleClickSubmit}>
         Upload
       </button>
-    </form>
+    </div>
   );
 };
 

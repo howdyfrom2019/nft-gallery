@@ -19,7 +19,7 @@ const LoginPage = () => {
         icon: "🖐️",
         style: { borderRadius: "10px", background: "#333", color: "#fff" },
       });
-      // router.push("/list");
+      router.push("/list");
     } catch (e: unknown) {
       const credential = GoogleAuthProvider.credentialFromError(
         e as FirebaseError
