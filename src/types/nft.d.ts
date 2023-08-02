@@ -1,6 +1,6 @@
 interface NFTItem {
   url: string;
-  id: string;
+  id?: string;
   title: string;
   desc: string;
 }

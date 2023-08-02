@@ -27,17 +27,25 @@ const NFTForm = () => {
     };
   };
 
+  const mint = (payload: NFT.Item) => {};
+
   const handleClickSubmit = async () => {
     const uploadedResult = await uplaodImageToFireStore();
     if (!uploadedResult) return;
 
     const { isSuccess, bucket, path } = uploadedResult;
-    if (isSuccess) {
-      createNFTItem({
-        title,
-        desc,
-        url: `${bucket}/${path}`,
-      });
+    if (!isSuccess) return;
+
+    const data = await createNFTItem({
+      title,
+      desc,
+      url: `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(
+        path
+      )}?alt=media`,
+    });
+
+    if (data.success && data.snapshot) {
+      mint(data.snapshot);
     }
   };
 
