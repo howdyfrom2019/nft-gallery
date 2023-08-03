@@ -66,10 +66,11 @@ const NFTForm = () => {
   };
 
   useEffect(() => {
-    toast("Minting Success!", {
-      icon: "🖼️",
-      style: { borderRadius: "10px", background: "#333", color: "#fff" },
-    });
+    mintSuccess &&
+      toast("Minting Success!", {
+        icon: "🖼️",
+        style: { borderRadius: "10px", background: "#333", color: "#fff" },
+      });
   }, [mintSuccess]);
 
   return (
