@@ -12,11 +12,11 @@ const ListBoard = () => {
   return (
     <div
       className={
-        "flex flex-wrap gap-4 w-full max-w-[1024px] items-center mx-auto py-8"
+        "grid grid-cols-3 gap-4 w-full max-w-[1024px] items-center mx-auto py-8"
       }
     >
       {nftList.map((item) => (
-        <figure className={"w-[30%]"} key={item.id}>
+        <figure key={item.id}>
           <img
             src={item.url}
             alt={item.title}

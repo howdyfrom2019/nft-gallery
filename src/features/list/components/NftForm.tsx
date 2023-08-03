@@ -1,15 +1,33 @@
+import contractPayload from "@/abi/payload";
 import { storage } from "@/firebase/firebaseClient";
 import useFirestore from "@/hooks/useFirestore";
 import { useInput } from "@/hooks/useInput";
 import { ref, uploadBytes } from "firebase/storage";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { toast } from "react-hot-toast";
 import { v4 as uuidv4 } from "uuid";
+import { useContractWrite, useNetwork, usePrepareContractWrite } from "wagmi";
 
 const NFTForm = () => {
   const [title, onChangeTitle] = useInput("");
   const [desc, onChangeDesc] = useInput("");
+  const sourceURI = useRef<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const { createNFTItem } = useFirestore();
+  const { chain } = useNetwork();
+  const { config: mintConfig, error: mintError } = usePrepareContractWrite({
+    ...contractPayload({
+      method: "mintNFT",
+      chainId: chain?.id,
+    }),
+    args: [title, desc, sourceURI.current],
+  });
+  const {
+    write: mintNFT,
+    isLoading: mintLoading,
+    isSuccess: mintSuccess,
+    data: mintData,
+  } = useContractWrite(mintConfig);
 
   const uplaodImageToFireStore = async () => {
     if (!fileRef.current) return;
@@ -27,8 +45,6 @@ const NFTForm = () => {
     };
   };
 
-  const mint = (payload: NFT.Item) => {};
-
   const handleClickSubmit = async () => {
     const uploadedResult = await uplaodImageToFireStore();
     if (!uploadedResult) return;
@@ -36,18 +52,25 @@ const NFTForm = () => {
     const { isSuccess, bucket, path } = uploadedResult;
     if (!isSuccess) return;
 
+    const imgURI = `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(
+      path
+    )}?alt=media`;
+
     const data = await createNFTItem({
       title,
       desc,
-      url: `https://firebasestorage.googleapis.com/v0/b/${bucket}/o/${encodeURIComponent(
-        path
-      )}?alt=media`,
+      url: imgURI,
     });
-
-    if (data.success && data.snapshot) {
-      mint(data.snapshot);
-    }
+    sourceURI.current = imgURI;
+    mintNFT?.();
   };
+
+  useEffect(() => {
+    toast("Minting Success!", {
+      icon: "🖼️",
+      style: { borderRadius: "10px", background: "#333", color: "#fff" },
+    });
+  }, [mintSuccess]);
 
   return (
     <div

@@ -1,7 +1,7 @@
 // (Goerli) 0x3d6F3E40567F03bc3b159fa5A5f60E42b079adEe
 // (Sepolia) 0x095D0386E07f7a7c7EcD54F1b58D6Bc239fa09f8
 
-const MINT_ABI = [
+export const MINT_ABI = [
   {
     inputs: [],
     stateMutability: "nonpayable",
